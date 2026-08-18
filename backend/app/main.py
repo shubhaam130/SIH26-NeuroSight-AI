@@ -16,7 +16,7 @@ import uuid
 import datetime
 from typing import Optional
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException,Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -43,7 +43,7 @@ class ScanUpdate(BaseModel):
 
 
 @app.post("/api/scans/upload")
-async def upload_scan(file: UploadFile = File(...), patient_ref: str = "Unlabeled"):
+async def upload_scan(file: UploadFile = File(...), patient_ref: str =Form( "Unlabeled")):
     image_bytes = await file.read()
 
     try:

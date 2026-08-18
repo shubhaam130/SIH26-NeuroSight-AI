@@ -35,12 +35,19 @@ def _get_model_path() -> str:
     if env_path and os.path.exists(env_path):
         return env_path
     
-    # Check standard locations
+    # Check standard locations. E5_fixed_final is checked first — it's the
+    # gentler-fine-tune rerun (last 20 EfficientNet layers unfrozen instead
+    # of 50, lower LR) that fixed meningioma recall (77% -> 86%) and lifted
+    # overall test accuracy to 90.69%. Falls back to older checkpoints if
+    # the fixed one isn't present.
     candidates = [
+        "models/E5_fixed_final.keras",
         "models/E5_TwoStage_best.keras",
         "models/E5_best_final.keras",
+        "backend/models/E5_fixed_final.keras",
         "backend/models/E5_TwoStage_best.keras",
         "backend/models/E5_best_final.keras",
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "models", "E5_fixed_final.keras"),
         os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "models", "E5_TwoStage_best.keras"),
         os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "models", "E5_best_final.keras"),
     ]
@@ -140,7 +147,7 @@ def compute_uncertainty(model, x: np.ndarray, probs: np.ndarray, mc_passes: int 
 
     # Combine into a single triage bucket. Thresholds are a first pass —
     # tune against a validation set once you have real predictions.
-    if norm_entropy < 0.25 and mc_std < 0.05:
+    if norm_entropy < 0.22 and mc_std < 0.05:
         bucket = "high_confidence"
         action = "Standard queue — model prediction consistent across passes."
     elif norm_entropy < 0.5 and mc_std < 0.12:

@@ -87,16 +87,17 @@ export const api = {
    * POST /api/scans/upload?patient_ref=...
    */
   async uploadScan(file, patientRef = 'Unlabeled') {
-    if (!file) throw new Error('File is required for upload');
-    const formData = new FormData();
-    formData.append('file', file);
+  if (!file) throw new Error('File is required for upload');
 
-    const endpoint = `/api/scans/upload?patient_ref=${encodeURIComponent(patientRef.trim() || 'Unlabeled')}`;
-    return request(endpoint, {
-      method: 'POST',
-      body: formData,
-    });
-  },
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('patient_ref', patientRef.trim() || 'Unlabeled');
+
+  return request('/api/scans/upload', {
+    method: 'POST',
+    body: formData,
+  });
+},
 
   /**
    * Update scan report and workflow status
